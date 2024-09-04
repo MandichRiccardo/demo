@@ -30,12 +30,34 @@ public class DemoApplication {
             try (Statement stmt = conn.createStatement()) {
                 //execute query
                 try (ResultSet rs = stmt.executeQuery("SELECT * from ana_articolo where cod_articolo = " + codArticolo)) {
-
+					body = selectToString(rs, body);
 				}
             }
 		} catch (SQLException e) {
             throw new RuntimeException(e);
         }
+		return body;
+	}
+
+	private static String selectToString(ResultSet rs, String body) throws SQLException{
+		String[] tabel = new String[0];
+		String label = "";
+		for(int i = 1; i<= rs.getMetaData().getColumnCount(); i++) {
+			label = label.concat("<td>" + rs.getMetaData().getColumnName(i) + "</td>");
+		}
+		tabel = addRow(tabel, label);
+		while(rs.next()) {
+			String row = "";
+			for(int i = 1; i<= rs.getMetaData().getColumnCount(); i++) {
+				row = row.concat("<td>" + rs.getString(i) + "</td>");
+			}
+			tabel = addRow(tabel, row);
+		}
+		body = body.concat("<table border=\"\">");
+		for(String line:tabel) {
+			body = body.concat("<tr>" + line + "</tr>");
+		}
+		body = body.concat("</table>");
 		return body;
 	}
 
@@ -48,24 +70,7 @@ public class DemoApplication {
                 try (ResultSet rs = stmt.executeQuery("SELECT * from " + table)) {
                 //try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
                     //position result to first
-                	String[] tabel = new String[0];
-                	String label = "";
-                	for(int i=1;i<=rs.getMetaData().getColumnCount();i++) {
-                		label = label.concat("<td>" + rs.getMetaData().getColumnName(i) + "</td>");
-                	}
-                	tabel = addRow(tabel, label);
-                    while(rs.next()) {
-	                    String row = "";
-	                    for(int i=1;i<=rs.getMetaData().getColumnCount();i++) {
-	                    	row = row.concat("<td>" + rs.getString(i) + "</td>");
-	                    }
-	                    tabel = addRow(tabel, row);
-                    }
-                    setTable("<table border=\"\">");
-                    for(String line:tabel) {
-                    	setTable(getTable() + "<tr>" + line + "</tr>");
-                    }
-                    setTable(getTable() + "</table>");
+                	setTable(selectToString(rs, getTable()));
                 }
             }
 		} catch (SQLException e) {
@@ -167,6 +172,16 @@ public class DemoApplication {
 										[valori di default: 080538311, articolo: 88002088, matricola: lIWEUGFWEIUGF]
 									</li>
 								</ol>
+							</li>
+						</ul>
+						
+						todo:
+						<ul>
+							<li>
+								es 2
+							</li>
+							<li>
+								es 3
 							</li>
 						</ul>
 				""");
