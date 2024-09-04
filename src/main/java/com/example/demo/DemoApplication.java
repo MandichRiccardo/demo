@@ -22,9 +22,21 @@ public class DemoApplication {
 		return table;
 	}
 
-	@GetMapping("/id={idArticolo}")
-	public String idArticolo(@PathVariable("idArticolo") String idArticolo){
-		return "<ul><li>id articolo:\t" + idArticolo + "</li></ul>";
+	@GetMapping("/cod_articolo={codArticolo}")
+	public String codArticolo(@PathVariable("codArticolo") String codArticolo){
+		String body = "";
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
+            // create a Statement
+            try (Statement stmt = conn.createStatement()) {
+                //execute query
+                try (ResultSet rs = stmt.executeQuery("SELECT * from ana_articolo where cod_articolo = " + codArticolo)) {
+
+				}
+            }
+		} catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+		return body;
 	}
 
 	@GetMapping("/table={table}")
@@ -52,13 +64,8 @@ public class DemoApplication {
                     setTable("<table border=\"\">");
                     for(String line:tabel) {
                     	setTable(getTable() + "<tr>" + line + "</tr>");
-						/*String[] riga = line.split("</tr><tr>");
-						for(String cell:riga){
-							System.out.print(cell + "\t");
-						}
-						System.out.println();*/
                     }
-                    setPluto(getTable() + "</table>");
+                    setTable(getTable() + "</table>");
                 }
             }
 		} catch (SQLException e) {
@@ -66,6 +73,13 @@ public class DemoApplication {
         }
 		return getTable();
     }
+
+	@GetMapping("/codice_collo={codiceCollo}")
+	public String codiceCollo(@PathVariable("codiceCollo") String codiceCollo){
+		String body = "";
+
+		return body;
+	}
 
 	
 	public static void setPluto(String output) {
@@ -135,11 +149,22 @@ public class DemoApplication {
 										<a href="cod_articolo=88002074">
 											Dato un COD_ARTICOLO ritornare la descrizione
 										</a>
+										<br>
+										[il valore di input di default è 88002074]
 									</li>
 									<li>
 										<a href="codice_collo=080538311">
 											Dato un CODICE_COLLO verificare se esiste nella tabella segnacollo e ritornare il tipo reso (codice e descrizione)
 										</a>
+										<br>
+										[il valore di input di default è 080538311]
+									</li>
+									<li>
+										<a href="codice_collo=080538311">
+											In ingresso codice collo, articolo e una matricola da salvare in SERIAL  (ritorna un esito 1/0)
+										</a>
+										<br>
+										[valori di default: 080538311, articolo: 88002088, matricola: lIWEUGFWEIUGF]
 									</li>
 								</ol>
 							</li>
