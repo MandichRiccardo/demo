@@ -185,7 +185,7 @@ public class DemoApplication {
 	public static void main(String[] args){
 		SpringApplication.run(DemoApplication.class, args);
 		String[] nomeTabelle = new String[0];
-		String home;
+		String home = "";
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/world", "formazione", "129EL@doiej!")) {
 			try (Statement stmt = conn.createStatement()) {
 				try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
