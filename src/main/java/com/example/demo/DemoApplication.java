@@ -188,7 +188,7 @@ public class DemoApplication {
 		String home = "";
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/world", "formazione", "129EL@doiej!")) {
 			try (Statement stmt = conn.createStatement()) {
-				try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
+				try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='world'")) {
 					while(rs.next()){
 						nomeTabelle = addRow(nomeTabelle, rs.getString(1));
 						System.out.println("sto aggiungendo una tabella all'array");
