@@ -184,26 +184,32 @@ public class DemoApplication {
 
 	public static void main(String[] args){
 		SpringApplication.run(DemoApplication.class, args);
-		setHome("""
+		String[] nomeTabelle = new String[0];
+		String home;
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/world", "formazione", "129EL@doiej!")) {
+			try (Statement stmt = conn.createStatement()) {
+				try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
+					home = selectToString(rs, "");
+					/*while(rs.next()){
+						nomeTabelle = addRow(nomeTabelle, rs.getString(1));
+						System.out.println("sto aggiungendo una tabella all'array");
+					}*/
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		home += """
 					a che pagina vuoi andare?
 						<ul>
 							<li>tabelle:
 								<ul>
-									<li>
-										<a href="table=ana_articolo">
-											ana_articolo
-										</a>
-									</li>
-									<li>
-										<a href="table=segnacollo">
-											segnacollo
-										</a>
-									</li>
-									<li>
-										<a href="table=tab_tipo_reso">
-											tab_tipo_reso
-										</a>
-									</li>
+								""";
+		for(String nome:nomeTabelle){
+			home = home.concat("<li><a href=\"table=" + nome + "\">" + nome + "</a></li>");
+			System.out.println("sto aggiungendo una tabella all'html");
+		}
+		home = home.concat("""
 								</ul>
 							</li>
 							<li>esercizi:
@@ -236,14 +242,6 @@ public class DemoApplication {
 										<br>
 										[valori di default: codice_collo: 080538311, cod_articolo: 88002088, Qta_resa: 3]
 										<br>
-										<a href="codice_collo=080538311/cod_articolo=88002088/qta_resa=5">
-											test quantità resa uguale a quantità prevista
-										</a>
-										<br>
-										<a href="codice_collo=080538311/cod_articolo=88002088/qta_resa=7">
-											test quantità resa maggiore a quantità prevista
-										</a>
-										<br>
 									</li>
 								</ol>
 							</li>
@@ -254,6 +252,7 @@ public class DemoApplication {
 							
 						</ul>
 				""");
-		System.out.println(getPluto());
+		setHome(home);
+
     }
 }
