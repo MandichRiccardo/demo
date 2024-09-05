@@ -86,7 +86,7 @@ public class DemoApplication {
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
 			try (Statement stmt = conn.createStatement()) {
 				try (ResultSet rs1 = stmt.executeQuery("select * from segnacollo where " + codiceCollo)) {
-					String codiceTipoResoMagazzino = "";
+					String codiceTipoResoMagazzino;
 					if(rs1.next()){
 						codiceTipoResoMagazzino = rs1.getString("COD_TIPO_RESO") + ";" + rs1.getString("COD_MAGAZZINO");
 						try (ResultSet rs2 = stmt.executeQuery("select COD_TIPO_RESO, DESCRIZIONE from TAB_TIPO_RESO where COD_TIPO_RESO = '" + codiceTipoResoMagazzino.split(";")[0] + "' and COD_MAGAZZINO = '" + codiceTipoResoMagazzino.split(";")[1] + "'")){
@@ -117,7 +117,7 @@ public class DemoApplication {
 
 	@GetMapping("/codice_collo={codiceCollo}/cod_articolo={codArticolo}/qta_resa={qtaResa}")
 	public String reso(@PathVariable("codiceCollo") String codiceCollo, @PathVariable("codArticolo") String codArticolo, @PathVariable("qtaResa") String qtaResa){
-		String body = "";
+		String body;
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
 			try (Statement stmt = conn.createStatement()) {
 				try (ResultSet rs1 = stmt.executeQuery("select qta_prevista from segnacollo where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "';")){
