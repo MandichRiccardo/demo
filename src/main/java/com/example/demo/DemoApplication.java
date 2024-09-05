@@ -101,6 +101,19 @@ public class DemoApplication {
 		return body;
 	}
 
+	@GetMapping("codice_collo={codiceCollo}/cod_articolo={codArticolo}/serial={serial}")
+	public String serial(@PathVariable("codiceCollo") String codiceCollo, @PathVariable("codArticolo") String codArticolo, @PathVariable("serial") String serial){
+		String body = "";
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
+			try (Statement stmt = conn.createStatement()) {
+				int modifiche = stmt.executeUpdate("update segnacollo set SERIAL = '" + serial + "'" + "where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "';");
+				body = body.concat("ho fatto " + modifiche + " modifiche");
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return body;
+	}
 	
 	public static void setPluto(String output) {
 		pluto = output;
@@ -180,11 +193,11 @@ public class DemoApplication {
 										[il valore di input di default è 080538311]
 									</li>
 									<li>
-										<a href="codice_collo=080538311">
+										<a href="codice_collo=080538311/cod_articolo=88002088/serial=lIWEUGFWEIUGF">
 											In ingresso codice collo, articolo e una matricola da salvare in SERIAL  (ritorna un esito 1/0)
 										</a>
 										<br>
-										[valori di default: 080538311, articolo: 88002088, matricola: lIWEUGFWEIUGF]
+										[valori di default: codice_collo: 080538311, cod_articolo: 88002088, serial: lIWEUGFWEIUGF]
 									</li>
 								</ol>
 							</li>
