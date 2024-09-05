@@ -107,10 +107,40 @@ public class DemoApplication {
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
 			try (Statement stmt = conn.createStatement()) {
 				int modifiche = stmt.executeUpdate("update segnacollo set SERIAL = '" + serial + "'" + "where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "';");
-				body = body.concat("ho fatto " + modifiche + " modifiche");
+				body = body.concat(modifiche != 0 ? "true" : "false");
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		}
+		return body;
+	}
+
+	@GetMapping("/codice_collo={codiceCollo}/cod_articolo={codArticolo}/qta_resa={qtaResa}")
+	public String reso(@PathVariable("codiceCollo") String codiceCollo, @PathVariable("codArticolo") String codArticolo, @PathVariable("qtaResa") String qtaResa){
+		String body = "";
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
+			try (Statement stmt = conn.createStatement()) {
+				try (ResultSet rs1 = stmt.executeQuery("select qta_prevista from segnacollo where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "';")){
+					if(rs1.next()){
+						if(Integer.parseInt(qtaResa) > rs1.getInt("qta_prevista")){
+							throw new RuntimeException("non puoi rendere più articoli di quelli ricevuti");
+						}else if(Integer.parseInt(qtaResa)<0){
+							throw new RuntimeException("non puoi rendere un numero negativo di articoli");
+						}else{
+							stmt.executeUpdate("update segnacollo set QTA_RESA = " + qtaResa + " where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "'");
+							try (ResultSet rs2 = stmt.executeQuery("select QTA_RESA, QTA_PREVISTA, CODICE_COLLO, COD_ARTICOLO, SERIAL, COD_TIPO_RESO from segnacollo s where CODICE_COLLO = '" + codiceCollo + "' and COD_ARTICOLO = '" + codArticolo + "';")){
+								body = selectToString(rs2, "<h1>record aggiornato:</h1><br>");
+							}
+						}
+					}else{
+						throw new RuntimeException("il colle inserito non esiste");
+					}
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}catch (RuntimeException e){
+			body = e.getMessage();
 		}
 		return body;
 	}
@@ -194,10 +224,26 @@ public class DemoApplication {
 									</li>
 									<li>
 										<a href="codice_collo=080538311/cod_articolo=88002088/serial=lIWEUGFWEIUGF">
-											In ingresso codice collo, articolo e una matricola da salvare in SERIAL  (ritorna un esito 1/0)
+											In ingresso codice collo, codice articolo e una matricola da salvare in SERIAL  (ritorna un esito 1/0)
 										</a>
 										<br>
 										[valori di default: codice_collo: 080538311, cod_articolo: 88002088, serial: lIWEUGFWEIUGF]
+									</li>
+									<li>
+										<a href="codice_collo=080538311/cod_articolo=88002088/qta_resa=3">
+											In ingresso codice collo, codice articolo e una quantità intera, che deve essere minore o uguale a QTA_PREVISTA e salvarla in QTA_RESA (ritorna un esito 1/0)
+										</a>
+										<br>
+										[valori di default: codice_collo: 080538311, cod_articolo: 88002088, Qta_resa: 3]
+										<br>
+										<a href="codice_collo=080538311/cod_articolo=88002088/qta_resa=5">
+											test quantità resa uguale a quantità prevista
+										</a>
+										<br>
+										<a href="codice_collo=080538311/cod_articolo=88002088/qta_resa=7">
+											test quantità resa maggiore a quantità prevista
+										</a>
+										<br>
 									</li>
 								</ol>
 							</li>
@@ -206,10 +252,7 @@ public class DemoApplication {
 						todo:
 						<ul>
 							<li>
-								es 2
-							</li>
-							<li>
-								es 3
+								es 4
 							</li>
 						</ul>
 				""");
