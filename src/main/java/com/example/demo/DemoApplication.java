@@ -19,17 +19,18 @@ public class DemoApplication {
 	
 	@RequestMapping("")
 	public String home(){
-		return table;
+		return home;
 	}
 
 	@GetMapping("/cod_articolo={codArticolo}")
 	public String codArticolo(@PathVariable("codArticolo") String codArticolo){
 		String body = "";
+		codArticolo = "'" + codArticolo + "'";
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
             // create a Statement
             try (Statement stmt = conn.createStatement()) {
                 //execute query
-                try (ResultSet rs = stmt.executeQuery("SELECT * from ana_articolo where cod_articolo = " + codArticolo)) {
+                try (ResultSet rs = stmt.executeQuery("SELECT COD_ARTICOLO, DES_ARTICOLO from ana_articolo where cod_articolo = " + codArticolo)) {
 					body = selectToString(rs, body);
 				}
             }
@@ -82,7 +83,21 @@ public class DemoApplication {
 	@GetMapping("/codice_collo={codiceCollo}")
 	public String codiceCollo(@PathVariable("codiceCollo") String codiceCollo){
 		String body = "";
-
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
+			try (Statement stmt = conn.createStatement()) {
+				try (ResultSet rs1 = stmt.executeQuery("select * from segnacollo where " + codiceCollo)) {
+					String codiceTipoResoMagazzino = "";
+					if(rs1.next()){
+						codiceTipoResoMagazzino = rs1.getString("COD_TIPO_RESO") + ";" + rs1.getString("COD_MAGAZZINO");
+						try (ResultSet rs2 = stmt.executeQuery("select COD_TIPO_RESO, DESCRIZIONE from TAB_TIPO_RESO where COD_TIPO_RESO = '" + codiceTipoResoMagazzino.split(";")[0] + "' and COD_MAGAZZINO = '" + codiceTipoResoMagazzino.split(";")[1] + "'")){
+							body = selectToString(rs2, body);
+						}
+					}
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 		return body;
 	}
 
@@ -108,11 +123,11 @@ public class DemoApplication {
 	public static String table = "";
 
 	public static String getHome() {
-		return table;
+		return home;
 	}
 
 	public static void setHome(String output) {
-		DemoApplication.table = output;
+		DemoApplication.home = output;
 	}
 
 	public static String home = "";
