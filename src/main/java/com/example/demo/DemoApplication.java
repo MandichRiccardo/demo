@@ -8,10 +8,8 @@ import java.sql.Statement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootApplication
 @RestController
@@ -64,6 +62,7 @@ public class DemoApplication {
 
 	@GetMapping("/table={table}")
 	public String table(@PathVariable("table") String table){
+		String body;
 		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
             // create a Statement
             try (Statement stmt = conn.createStatement()) {
@@ -71,13 +70,13 @@ public class DemoApplication {
                 try (ResultSet rs = stmt.executeQuery("SELECT * from " + table)) {
                 //try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
                     //position result to first
-                	setTable(selectToString(rs, getTable()));
+                	body = selectToString(rs, "");
                 }
             }
 		} catch (SQLException e) {
             throw new RuntimeException(e);
         }
-		return getTable();
+		return body;
     }
 
 	@GetMapping("/codice_collo={codiceCollo}")
@@ -182,6 +181,28 @@ public class DemoApplication {
 		return newTabel;
 	}
 
+	@RequestMapping("/textBox")
+	public ModelAndView textBox(){
+		ModelAndView mav = new ModelAndView("TextBox");
+		return mav;
+	}
+
+	@GetMapping("/textBox/")
+	public String ResultTextBox(@RequestParam String column, @RequestParam String table){
+		String body;
+		column = column.equals("") ? "*" : column;
+		try (Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.8.170:3306/testresi", "testresi", "Sip3R§si")) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("SELECT " + column + " from " + table)) {
+                	body = selectToString(rs, "");
+                }
+            }
+		} catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+		return body;
+	}
+
 	public static void main(String[] args){
 		SpringApplication.run(DemoApplication.class, args);
 		String[] nomeTabelle = new String[0];
@@ -241,6 +262,15 @@ public class DemoApplication {
 										<br>
 									</li>
 								</ol>
+							</li>
+							<li>
+								<ul>
+									<li>
+										<a href="textBox">
+											UI che consente di fare il select inserendo colonna e tabella
+										</a>
+									</li>
+								</ul>
 							</li>
 						</ul>
 						
