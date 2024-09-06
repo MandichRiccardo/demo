@@ -191,7 +191,6 @@ public class DemoApplication {
 				try (ResultSet rs = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='testresi'")) {
 					while(rs.next()){
 						nomeTabelle = addRow(nomeTabelle, rs.getString(1));
-						System.out.println("sto aggiungendo una tabella all'array");
 					}
 				}
 			}
@@ -206,7 +205,6 @@ public class DemoApplication {
 								""";
 		for(String nome:nomeTabelle){
 			home = home.concat("<li><a href=\"table=" + nome + "\">" + nome + "</a></li>");
-			System.out.println("sto aggiungendo una tabella all'html");
 		}
 		home = home.concat("""
 								</ul>
